@@ -60,11 +60,3 @@ layoutNetwork (cw, "jgraph-circle")
 redraw (cw)
 
 cw2 <- existing.CytoscapeWindow (window.name, copy.graph.from.cytoscape.to.R=TRUE)
-
-tmp <- which(adjmat[which(rownames(mydata) == "1019-S") ,]!=0)
-
-# select all the row names first and then column names
-tmp1 <- adjmat[tmp,]
-tmp2 <- tmp1[,tmp]
-
-
