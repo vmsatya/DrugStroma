@@ -1,3 +1,5 @@
+# Sample code taken from http://rcytoscape.systemsbiology.net/versions/current/index.html
+
 nRows <- 10
 adMatrix <- matrix (round (runif (nRows * nRows)), ncol=nRows)
 adMatrix <- adMatrix * upper.tri (adMatrix, diag=T)
