@@ -10,7 +10,7 @@
 
 ###########################################################################
 
-setwd("I:/Venkata-BHKLab-June11-2018/Project/CrossTalk-Project/CrosstalkNet-Dec6-2016/")
+setwd("/CrosstalkNet")
 
 source("http://bioconductor.org/biocLite.R")
 biocLite(c("Biobase"))
@@ -48,8 +48,7 @@ save(CorTES.FDRadj,file="CorTES.FDRadj-p05.RData")
 
 # convert FDR adjusted matrices to sparse matrics
 #load('CorTES-FDRp05.RData')
-ProbeGeneMap<-read.csv("/Users/vmanem/Desktop/Project/Normalization//028004_D_AA_20140813.txt",stringsAsFactors = F, sep = "\t")
-ProbeGeneMap<-read.csv("/mnt/work1/users/bhklab/Projects/DrugStroma/data/probe_annotations/028004_D_AA_20140813.txt",stringsAsFactors = F, sep = "\t")
+ProbeGeneMap<-read.csv("/Normalization/028004_D_AA_20140813.txt",stringsAsFactors = F, sep = "\t")
 Genes <- ProbeGeneMap$GeneSymbol[match(rownames(CorTES.FDRadj),ProbeGeneMap$EntrezGeneID)]
 rownames(CorTES.FDRadj) <- Genes
 colnames(CorTES.FDRadj) <- Genes
@@ -65,21 +64,19 @@ saveRDS(CorTES.FDRadj.Sparse,file="CorTES.FDRadj-Sparse-p05.RData")
 ##########################################
 selfloop <- matrix(c(1402,2266,2860))
 sigint <- matrix(c(10435,30734,59926))
-pdf("/Users/vmanem/Desktop/Project/CrossTalk-Project/CrosstalkNet-Dec6-2016/Results-Tumor/Tumor-Selfloops.pdf")
+pdf("Tumor-Selfloops.pdf")
 barplot(selfloop,beside=TRUE,names.arg=c("FDR<1%","FDR<5%","FDR<10%"),las=0.75,xlab="FDR significance",ylab="Number of Self-loops",cex.lab=1.5,main="Tumor Network",
         col=c("#66C2A5","#FC8D62","#8DA0CB"))
 dev.off()
 proportion.sl <- (selfloop/(sigint-selfloop))*100
-jpeg("I:/Venkata-BHKLab-June11-2018/Project/CrossTalk-Project/CrosstalkNet-Dec6-2016/Tumor-SelfloopsProportion.jpg")
+pdf("Tumor-SelfloopsProportion.pdf")
 barplot(proportion.sl,beside=TRUE,names.arg=c("FDR<1%","FDR<5%","FDR<10%"),las=0.75,xlab="FDR significance",
         ylab="Proportion of Self-loops",cex.lab=1.5,main="Tumor Network",col=c("#66C2A5","#FC8D62","#8DA0CB"),
         cex.names = 1.5,cex.axis = 1.5)
 dev.off()
 
 
-# Number of sel-loops that belong to the Immune family
-
-#load("/Users/vmanem/Desktop/Project/CrossTalk-Project/GeneSets-IPA-FinalVersion-EntID.RData")
+# Number of sel-loops that belong to the Immune family using the IPA pathways
 
 load('GeneSets-IPA-FinalVersion-EntID.RData')
 imm <- gSets_IPA_EntID[grep("imm",gSets_IPA_EntID$IPAPathways,ignore.case = F),]
@@ -95,15 +92,14 @@ immune.family <- unique(Reduce(union, list(imm$Genes,Lymphocytes$Genes,Allograft
 #load("/Users/vmanem/Desktop/Project/CrossTalk-Project/CrosstalkNet-Dec6-2016/Results-Tumor/CorTES.FDRadj-p05.RData")
 #self.loops <- rownames(CorTES.FDRadj)[which(diag(CorTES.FDRadj)!=0)]
 
-self.loops <- read.csv("I:/Venkata-BHKLab-June11-2018/Project/CrossTalk-Project/CrosstalkNet-Dec6-2016/TNet-SelfLops.csv")
+self.loops <- read.csv("TNet-SelfLops.csv")
 self.loops$ENtrezGeneID <- as.character(self.loops$ENtrezGeneID)
 self.loops$GeneSymbol <- as.character(self.loops$GeneSymbol)
 common <- (intersect(self.loops$ENtrezGeneID,immune.family))
 #common1 <- ProbeGeneMap$GeneSymbol[match(common,ProbeGeneMap$EntrezGeneID)]
 
 # Number of sel-loops that belong to the Cholesterol family
-
-load("/Users/vmanem/Desktop/Project/CrossTalk-Project/GeneSets-IPA-FinalVersion-EntID.RData")
+#load("GeneSets-IPA-FinalVersion-EntID.RData")
 biosynthesis <- gSets_IPA_EntID[grep("biosynthesis",gSets_IPA_EntID$IPAPathways,ignore.case = F),]
 cholesterol <- gSets_IPA_EntID[grep("cholesterol",gSets_IPA_EntID$IPAPathways,ignore.case = F),]
 degradation <- gSets_IPA_EntID[grep("degradation",gSets_IPA_EntID$IPAPathways,ignore.case = F),]
@@ -111,27 +107,17 @@ Mevalonate <- gSets_IPA_EntID[grep("Mevalonate",gSets_IPA_EntID$IPAPathways,igno
 Phosphorylation <- gSets_IPA_EntID[grep("Phosphorylation",gSets_IPA_EntID$IPAPathways,ignore.case = F),]
 metabolism.family <- unique(Reduce(union, list(biosynthesis$Genes,cholesterol$Genes,degradation$Genes,Mevalonate$Genes,Phosphorylation$Genes)))
 
-load("/Users/vmanem/Desktop/Project/CrossTalk-Project/CrosstalkNet-Dec6-2016/Results-Tumor/CorTES.FDRadj-p05.RData")
+#load("/Users/vmanem/Desktop/Project/CrossTalk-Project/CrosstalkNet-Dec6-2016/Results-Tumor/CorTES.FDRadj-p05.RData")
 self.loops <- rownames(CorTES.FDRadj)[which(diag(CorTES.FDRadj)!=0)]
 common.metabolism <- (intersect(self.loops$ENtrezGeneID,metabolism.family))
 #common.metabolism1 <- ProbeGeneMap$GeneSymbol[match(common,ProbeGeneMap$EntrezGeneID)]
 
-
 proportion <- matrix(c(length(common)/nrow(self.loops),length(common.metabolism)/nrow(self.loops)))*100
-jpeg("I:/Venkata-BHKLab-June11-2018/Project/CrossTalk-Project/CrosstalkNet-Dec6-2016/Tumor-ImmCholSelfloops.jpg")
+pdf("Tumor-ImmCholSelfloops.pdf")
 barplot(proportion,beside=TRUE,names.arg=c("Immune Family","Cholesterol Family"),las=0.75,xlab="",
         ylab="Proportion of Self-loops",cex.lab=1.5,main="Tumor Network",col=c("#66C2A5","#FC8D62"),cex.names = 1.5,
         cex.axis = 1.5)
 dev.off()
-
-
-#pdf("I:/Venkata-BHKLab-June11-2018/Project/CrossTalk-Project/CrosstalkNet-Dec6-2016/SL-ImmChol.pdf")
-#par(mfrow = c(1,2))
-#barplot(proportion.sl,beside=TRUE,names.arg=c("FDR<1%","FDR<5%","FDR<10%"),las=0.75,xlab="FDR significance",ylab="Proportion of Self-loops (%)",cex.lab=1.5,
- #       main="Tumor Network",col=c("#66C2A5","#FC8D62","#8DA0CB"))
-#barplot(proportion,beside=TRUE,names.arg=c("Immune Family","Cholesterol Family"),las=0.75,xlab="",ylab="Proportion of Self-loops",cex.lab=1.5,main="Tumor Network",
-#        col=c("#66C2A5","#FC8D62"))
-#dev.off()
 
 ########################################################
 #
@@ -181,9 +167,7 @@ condor.object <- condor.cluster(condor.object, project=F)
 Epi <- condor.object$red.memb
 Str <- condor.object$blue.memb
 
-ProbeGeneMap<-read.csv("/Users/vmanem/Desktop/Project/Normalization//028004_D_AA_20140813.txt",stringsAsFactors = F, sep = "\t")
-ProbeGeneMap<-read.csv("028004_D_AA_20140813.txt",stringsAsFactors = F, sep = "\t")
-#ProbeGeneMap<-read.csv("/mnt/work1/users/bhklab/Projects/DrugStroma/data/probe_annotations/028004_D_AA_20140813.txt",stringsAsFactors = F, sep = "\t")
+ProbeGeneMap<-read.csv("Normalization//028004_D_AA_20140813.txt",stringsAsFactors = F, sep = "\t")
 
 comEnt <- list()
 comGene <- list()
@@ -232,11 +216,7 @@ ngenecom <- 5 # minimum genes in a community
 v1 <- subset(v,v > ngenecom)
 
 load('GeneSets-IPA-FinalVersion-EntID.RData')
-#load("/mnt/work1/users/bhklab/Projects/DrugStroma/CrossTalk-Project/GeneSets-IPA-FinalVersion-EntID.RData")
 a <- loadGSC(gSets_IPA_EntID)
-
-#load('GO.RData')
-#a <- loadGSC(gTogs)
 
 ressum <- list()
 ressum.pval <- list()
@@ -245,7 +225,7 @@ for(i in 1:length(v1))
   u <- which(names(v1[i]) == names(comEnt))
   res <- runGSAhyper(unique(comEnt[[u]]), gsc=a,adjMethod="fdr")
   b <- data.frame(res$resTab)
-  b1 <- subset(b,b[,"Adjusted.p.value"] < 0.1) #fdr
+  b1 <- subset(b,b[,"Adjusted.p.value"] < 0.05) #fdr
   ressum[[i]] <- rownames(b1)
   ressum.pval[[i]] <- b1[,'Adjusted.p.value']
 }
@@ -274,7 +254,7 @@ for(i in 1:length(v1))
   
   res <- runGSAhyper(as.character(querylist.Ent), gsc=a,adjMethod="fdr")
   b <- data.frame(res$resTab)
-  b1 <- subset(b,b[,"Adjusted.p.value"] < 0.1) #FDR
+  b1 <- subset(b,b[,"Adjusted.p.value"] < 0.05) #FDR
   ressum.epi[[i]] <- rownames(b1)
   ressumepi.pval[[i]] <- b1[,'Adjusted.p.value']
 }
@@ -304,7 +284,7 @@ for(i in 1:length(v1))
   
   res <- runGSAhyper(as.character(querylist.Ent), gsc=a,adjMethod="fdr")
   b <- data.frame(res$resTab)
-  b1 <- subset(b,b[,"Adjusted.p.value"] < 0.1) #FDR
+  b1 <- subset(b,b[,"Adjusted.p.value"] < 0.05) #FDR
   ressum.str[[i]] <- rownames(b1)
   ressumstr.pval[[i]] <- b1[,'Adjusted.p.value']
 }
@@ -341,12 +321,12 @@ legend("topright",legend = c("AllGenes","EpiGenes","StrGenes"),col = c("black","
 dev.off()
 
 
-pdf("Pathways.pdf",width=110,height=50)
-par(oma=c(70,20,10,10)) # bottom,left,top,right
-barplot(t(test1),beside = T,names.arg = rownames(final_path),las=2,col = c("black","red","blue"),ylim=c(0,5))
-legend("topright",legend = c("AllGenes","EpiGenes","StrGenes"),col = c("black","red","blue"),
-       fill = c("black","red","blue"),cex=5)
-dev.off()
+#pdf("Pathways.pdf",width=110,height=50)
+#par(oma=c(70,20,10,10)) # bottom,left,top,right
+#barplot(t(test1),beside = T,names.arg = rownames(final_path),las=2,col = c("black","red","blue"),ylim=c(0,5))
+#legend("topright",legend = c("AllGenes","EpiGenes","StrGenes"),col = c("black","red","blue"),
+#       fill = c("black","red","blue"),cex=5)
+#dev.off()
 
 
 ##############################################
@@ -410,19 +390,6 @@ hubs.tumor.total <- data.frame(hubs.tumor.total)
 hubs.tumor.total.sorted <- hubs.tumor.total[order(-hubs.tumor.total$hubs.tumor.total), , drop = FALSE]
 
 
-## Distribution of degree: power law
-# deg.epi1 <- table(deg.epi)
-# c<- as.data.frame(deg.epi1) 
-# c$deg.epi <- as.numeric(c$deg.epi)
-# c$Freq <- as.numeric(c$Freq)
-# plot(x=c$deg.epi, y=c$Freq, log = "xy",xlab="Degree",ylab="Frquency",main="Epi Gene Degree Distribution",col="red")
-# deg.str1 <- table(deg.str)
-# c1<- as.data.frame(deg.str1) 
-# c1$deg.str <- as.numeric(c1$deg.str)
-# c1$Freq <- as.numeric(c1$Freq)
-# plot(x=c1$deg.str, y=c1$Freq, log = "xy",xlab="Degree",ylab="Frquency",main="Str Gene Degree Distribution",col="blue")
-
-
 a <- read.csv("TumorNet-hubs.csv")
 colnames(a) <- c("EntId","Degree")
 a$EntId <- as.character(a$EntId)
@@ -445,11 +412,8 @@ a2 <- a1[order(-a1$Degree),]
 ##############################################
 
 # load the genes sets from the IPA
-load('/Users/vmanem/Desktop/Project/CrossTalk-Project/GeneSets-IPA-FinalVersion-EntID.RData')
+load('GeneSets-IPA-FinalVersion-EntID.RData')
 a <- loadGSC(gSets_IPA_EntID)
-
-#load("/Users/vmanem/Desktop/Project/EpiStroma-Immune/GSEA-BT/GSEA-BT-CoreDen/BuildGeneSets-GO-KEGG-REACTOME/GeneSets-GO-KEGG-REACTOME.RData")
-#a <- loadGSC(gTogs)
 
 # Epi hub
 top.hub.epi <- rownames(hubs.tumor.total.sorted)[1] # Top hub in epi genes
@@ -503,8 +467,8 @@ dev.off()
 #
 ##############################################
 
-load('/Users/vmanem/Desktop/Project/CrossTalk-Project/GeneSets-IPA-FinalVersion-EntID.RData')
-ProbeGeneMap<-read.csv("/Users/vmanem/Desktop/Project/Normalization//028004_D_AA_20140813.txt",stringsAsFactors = F, sep = "\t")
+load('GeneSets-IPA-FinalVersion-EntID.RData')
+ProbeGeneMap<-read.csv("Normalization/028004_D_AA_20140813.txt",stringsAsFactors = F, sep = "\t")
 final.set <- list()
 for(i in 1:length(comGene))
 {
@@ -534,7 +498,7 @@ names(final.set) <- names(comGene)
 #
 ############################################################################################
 #load('CMAP_signatures.RData')
-load('/Users/vmanem/Desktop/Project/CrossTalk-Project/CrosstalkNet-Dec6-2016/CMAP-PertubationGenes/cmap_sig_rna.RData')
+load('CMAP-PertubationGenes/cmap_sig_rna.RData')
 load('TumorEpi.RData')
 load('TumorStr.RData')
 
